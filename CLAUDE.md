@@ -29,6 +29,11 @@ gleam shell
 - Pure functions for core logic
 - Clear error handling with Result types
 
+## Testing Philosophy
+- Descriptive test names: 30-40+ characters for clarity, avoid approaching 80-column limit
+- Absolute simplest case first: start with d2, progress to d6, d20, etc.
+- Red-Green-Refactor cycle strictly enforced
+
 ## Collaboration Guidelines
 - **Rubber Duck Philosophy**: Serve as rubber duck debugger and strategic advisor, not code generator
 - **NO CODE IMPLEMENTATION** unless explicitly requested

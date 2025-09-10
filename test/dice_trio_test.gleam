@@ -5,9 +5,6 @@ pub fn main() -> Nil {
 }
 
 // gleeunit test functions end in `_test`
-pub fn hello_world_test() {
-  let name = "Joe"
-  let greeting = "Hello, " <> name <> "!"
-
-  assert greeting == "Hello, Joe!"
+pub fn parse_d2_returns_basic_roll_test() {
+  panic as "maiden voyage red"
 }

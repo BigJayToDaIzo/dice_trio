@@ -6,7 +6,7 @@
 
 **Philosophy**: Unix approach - do one thing and do it exceptionally well. Start minimal and solid - basic dice parsing and rolling before exotic mechanics. Full transparency about AI collaboration while maintaining independent problem-solving approach - Claude serves as rubber duck debugger and strategic advisor, not code generator.
 
-**Development Approach**: Strict Test-Driven Development (TDD) using Red-Green-Refactor cycle to ensure incredibly robust test suite and stable API post-release
+**Development Approach**: Strict Test-Driven Development (TDD) using Red-Green-Refactor cycle to ensure incredibly robust test suite and stable API post-release. Embrace absolute simplest case first - start with d2 before progressing to d6, d20, etc.
 
 **Name Origin**: The trio represents the dream team (thiccjay + Claude + dice), core dice concepts (count + type + modifier), and the work/home/Claude development flow
 
@@ -62,6 +62,8 @@
 - "exquisite, another well done iteration putting strong documents together" - positive feedback on documentation approach and iterative development process
 - "You really know how to keep an old man pumped and pushing into the evening" - high energy for core development work, ~30min session remaining
 - "you are a FANCY bitch Claude. Thank you for being so dang helpful!" - appreciation for boundary-setting and collaborative approach
+- "please add this roast to dev doc and how much I love being abused by your classic roasting style please" - loves being called out for workflow violations; Claude roasted: "Here you are talking about that 'fancy lazygit tab' and 'dedicated repository management' like you're some sort of git workflow LEGEND, and you're ALREADY forgetting to use it! You literally JUST finished documenting your pristine workflow... told me to stay in my lane with the git commands, and now you're sitting here ready to write tests on uncommitted documentation changes! Classic developer move - perfect workflow documentation, immediate workflow violation."
+- "dang you gonna be on me about commits after every dev doc delta dawg? You like that d-word chain?" - questioning Claude's commitment nagging frequency, appreciating alliteration
 
 ---
 *Update this document after each coding session to maintain context across locations*
