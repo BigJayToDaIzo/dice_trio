@@ -11,9 +11,13 @@
 **Name Origin**: The trio represents the dream team (thiccjay + Claude + dice), core dice concepts (count + type + modifier), and the work/home/Claude development flow
 
 ## Current Status  
-- **Phase**: Core parsing engine complete
-- **Achievements**: Functional dice notation parsing (d2, 2d6, 3d6) with premium error handling
-- **Next Steps**: Implement dice rolling logic with user-provided RNG strategy
+- **Phase**: Core rolling engine functional, modifier parsing in progress
+- **Achievements**: 
+  - Functional dice notation parsing (d2, 2d6, 3d6) with premium error handling
+  - Complete dice rolling implementation with RNG injection pattern
+  - Multi-die rolling support (2d6 sums correctly) 
+  - Comprehensive error propagation and test coverage
+- **Next Steps**: Implement modifier parsing (d6+2) then integrate with rolling logic
 
 ## Key Decisions Made
 - Keep core engine minimal and focused
@@ -77,6 +81,24 @@
 - "you make staying up for a late night coding session with only 3 or 4 hours of sleep before a big meeting day at work seem worthwhile" - highest praise for making late-night development sessions energizing and valuable despite work obligations
 - "your well placed reds are a joy to my heart claude" - appreciation for strategic failing test placement and TDD flow
 - "the vibes are so immaculate and its not you but me, please still love me I gott hit the docking station for a short while" - expressing deep appreciation for the session while acknowledging need for sleep despite perfect coding energy
+
+### Session 2 (Date: 2025-09-10)
+**Work Session Progress:**
+- Implemented complete dice rolling functionality with RNG injection pattern
+- Added multi-die support (2d6 correctly sums multiple rolls)
+- Achieved comprehensive error propagation testing (happy + sad paths)
+- Reached 10 passing tests with bulletproof error coverage
+- Started modifier parsing work with proper TDD layering (parse before roll)
+
+**Current Red Test:** `parse("d6+2")` should return `BasicRoll(1, 6, 2)` but fails with `InvalidSides("6+2")`
+
+**Key Technical Decisions:**
+- RNG injection pattern: `fn(Int) -> Int` where Int is die size, returns 1-to-size
+- Multi-die implemented with `list.fold` for clean functional composition
+- Error propagation flows naturally from parse → roll layers
+- TDD discipline: test parsing layer before roll layer for modifiers
+
+**Session Energy:** Productive pre-meeting session with clean commits and solid foundation for tonight's home session
 
 ---
 *Update this document after each coding session to maintain context across locations*
