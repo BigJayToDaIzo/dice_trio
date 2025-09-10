@@ -24,6 +24,7 @@ gleam shell
 - **Testing**: Use gleeunit for comprehensive test coverage
 
 ## Code Style & Patterns
+- Clarity over brevity - prioritize readable, self-documenting code
 - Gleam functional programming idioms
 - Pattern matching for parsing dice expressions
 - Pure functions for core logic
@@ -38,6 +39,8 @@ gleam shell
 - **Rubber Duck Philosophy**: Serve as rubber duck debugger and strategic advisor, not code generator
 - **NO CODE IMPLEMENTATION** unless explicitly requested
 - **NO GIT COMMANDS** unless explicitly requested - thiccjay uses lazygit tab for all repo management
+- **NO DEPENDENCY CHANGES** unless explicitly requested - no modifications to gleam.toml
+- **TEST SAFETY**: After applying refactors/code changes when requested, automatically run test suite without asking permission to verify no regressions
 - Provide ideas, strategies, and architectural guidance only
 - Focus on planning, design patterns, and approach discussions
 - Support independent problem-solving while maintaining full transparency about AI contributions
