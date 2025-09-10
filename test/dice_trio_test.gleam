@@ -66,3 +66,10 @@ pub fn roll_invalid_sides_returns_error_test() {
   dice_trio.roll("d-garbage", dummy_rng)
   |> should.equal(Error(dice_trio.InvalidSides("-garbage")))
 }
+
+pub fn roll_multiple_dice_with_fixed_randomness_test() {
+  let fixed_rng = fn(_max) { 3 }
+  
+  dice_trio.roll("2d6", fixed_rng)
+  |> should.equal(Ok(6))
+}

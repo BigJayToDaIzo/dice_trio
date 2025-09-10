@@ -1,4 +1,5 @@
 import gleam/int
+import gleam/list
 import gleam/result
 import gleam/string
 
@@ -48,5 +49,8 @@ pub fn roll(
   rng_fn: fn(Int) -> Int,
 ) -> Result(Int, DiceError) {
   use roll_result <- result.try(parse(dice_expression))
-  Ok(rng_fn(roll_result.side_count))
+  list.fold(list.range(1, roll_result.roll_count), 0, fn(acc, _) {
+    acc + rng_fn(roll_result.side_count)
+  })
+  |> fn(sum) { Ok(sum) }
 }
