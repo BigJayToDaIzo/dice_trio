@@ -73,3 +73,10 @@ pub fn roll_multiple_dice_with_fixed_randomness_test() {
   dice_trio.roll("2d6", fixed_rng)
   |> should.equal(Ok(6))
 }
+
+pub fn parse_d6_plus_2_returns_basic_roll_with_modifier_test() {
+  let input = "d6+2"
+  let expected = Ok(BasicRoll(roll_count: 1, side_count: 6, modifier: 2))
+  let actual = dice_trio.parse(input)
+  assert actual == expected
+}
