@@ -42,3 +42,11 @@ pub fn parse(input: String) -> Result(BasicRoll, DiceError) {
     }
   }
 }
+
+pub fn roll(
+  dice_expression: String,
+  rng_fn: fn(Int) -> Int,
+) -> Result(Int, DiceError) {
+  use roll_result <- result.try(parse(dice_expression))
+  Ok(rng_fn(roll_result.side_count))
+}

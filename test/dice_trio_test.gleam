@@ -52,3 +52,17 @@ pub fn roll_single_d2_with_fixed_randomness_test() {
   dice_trio.roll("d2", fixed_rng)
   |> should.equal(Ok(2))
 }
+
+pub fn roll_invalid_input_returns_error_test() {
+  let dummy_rng = fn(_max) { 1 }
+  
+  dice_trio.roll("garbage", dummy_rng)
+  |> should.equal(Error(dice_trio.MissingSeparator))
+}
+
+pub fn roll_invalid_sides_returns_error_test() {
+  let dummy_rng = fn(_max) { 1 }
+  
+  dice_trio.roll("d-garbage", dummy_rng)
+  |> should.equal(Error(dice_trio.InvalidSides("-garbage")))
+}
