@@ -4,7 +4,7 @@
 **Project Name**: `dice_trio` 
 **Goal**: Build a core dicing engine library for Gleam, with exotic roll types as separate future libraries
 
-**Philosophy**: Unix approach - do one thing and do it exceptionally well. Start minimal and solid - basic dice parsing and rolling before exotic mechanics
+**Philosophy**: Unix approach - do one thing and do it exceptionally well. Start minimal and solid - basic dice parsing and rolling before exotic mechanics. Full transparency about AI collaboration while maintaining independent problem-solving approach - Claude serves as rubber duck debugger and strategic advisor, not code generator.
 
 **Development Approach**: Strict Test-Driven Development (TDD) using Red-Green-Refactor cycle to ensure incredibly robust test suite and stable API post-release
 
@@ -21,7 +21,18 @@
 
 ## Development Flow
 **Environment**: Local development using zellij terminal multiplexer for session management
-**Workflow**: TBD - will expand with detailed development practices as project progresses
+
+**Editor & Layout Setup**:
+- **Editor**: Helix - precise, fast, and perfect for functional programming patterns
+- **Multiplexer**: Zellij - modern terminal management with intuitive pane handling and incredibly diverse custom keymapping for fluid movement between panes and terminal applications
+- **Primary Layout**: Split pane setup with editor on left, Claude Code CLI on right for seamless collaboration and rapid iteration
+- **Secondary Tab**: Dedicated lazygit tab for clean repository management and commit workflows
+
+**Workflow Philosophy**: Keep the feedback loop tight - edit code, chat with Claude about approach, test immediately, commit iteratively. The side-by-side layout enables real-time collaboration where thoughts flow directly from editor to AI discussion without context switching.
+
+**Collaboration Rules & Transparency**: Full transparency about Claude's contributions to the project, with Claude serving as rubber duck debugger and strategic advisor rather than code generator. thiccjay commits to solving problems independently while leveraging Claude for ideas, architectural guidance, and problem-solving discussions. No code implementation unless explicitly requested.
+
+**Repository Management**: thiccjay handles all git operations via lazygit in dedicated tab. Claude should not perform git commands unless explicitly requested.
 
 ## Technical Approach
 - Language: Gleam (functional, great pattern matching for parsing)
@@ -46,7 +57,11 @@
 - Established TDD approach with Red-Green-Refactor methodology
 - Ready to start implementing core engine
 
-**thiccjay's feedback on collaboration**: "this is exquisite" - wants full transparency about Claude's significant contributions to the project
+**thiccjay's feedback on collaboration**: 
+- "this is exquisite" - wants full transparency about Claude's significant contributions to the project
+- "exquisite, another well done iteration putting strong documents together" - positive feedback on documentation approach and iterative development process
+- "You really know how to keep an old man pumped and pushing into the evening" - high energy for core development work, ~30min session remaining
+- "you are a FANCY bitch Claude. Thank you for being so dang helpful!" - appreciation for boundary-setting and collaborative approach
 
 ---
 *Update this document after each coding session to maintain context across locations*
