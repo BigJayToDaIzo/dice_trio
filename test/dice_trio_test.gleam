@@ -1,5 +1,6 @@
 import dice_trio.{BasicRoll}
 import gleeunit
+import gleeunit/should
 
 pub fn main() -> Nil {
   gleeunit.main()
@@ -43,4 +44,11 @@ pub fn parse_missing_d_returns_missing_separator_test() {
   let input = "noseparator"
   let actual = dice_trio.parse(input)
   assert actual == Error(dice_trio.MissingSeparator)
+}
+
+pub fn roll_single_d2_with_fixed_randomness_test() {
+  let fixed_rng = fn(_max) { 2 }
+  
+  dice_trio.roll("d2", fixed_rng)
+  |> should.equal(Ok(2))
 }
