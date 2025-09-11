@@ -150,13 +150,49 @@
 - ✅ Error handling: Comprehensive and crash-safe
 - ✅ Test suite: Complete safety net established
 
+### Session 5 (Date: 2025-09-11)
+**Evening Home Session - Strategic Planning:**
+- **Ecosystem Research**: Discovered existing `diced` library on hex.pm (complex AD&D-focused parser)
+- **Strategic Decision**: Stay independent with ultra-minimal Unix philosophy approach
+- **Architecture Validation**: `diced`'s complexity reinforces our simple core + bolt-on strategy
+- **Planning Focus**: Comprehensive testing strategy + bolt-on ecosystem design
+
+**Key Strategic Insights:**
+- **Competitive Landscape**: `diced` serves complex AD&D use cases (keep highest/lowest, fate dice)
+- **Market Positioning**: `dice_trio` as the "grep of dice libraries" - simple, reliable, foundational
+- **Unix Philosophy Reinforced**: Do one thing exceptionally well, let others build on top
+- **Independence Justified**: Our 17-test foundation is simpler and more focused than `diced`'s complexity
+
+**Testing Strategy Development:**
+- **Current State**: 17 solid unit tests covering parsing and basic rolling
+- **Gap Identified**: Need comprehensive integration and end-to-end test coverage
+- **Integration Test Targets**: Full parse-to-roll pipelines, error propagation chains, edge cases
+- **E2E Test Scenarios**: Game session simulation, performance under load, memory behavior
+- **Coverage Goals**: Bulletproof core before bolt-on development begins
+
+**API Design Philosophy - Maximum Approachability:**
+- **Core Mission**: Make game system modules EXTREMELY simple to write and implement
+- **API Simplicity Goals**: Predictable, minimal, composable, error-friendly
+- **Game System Ease**: `dice_trio.roll("2d6+3") // Ok(12)` should be ALL developers need to know
+- **Bolt-On Integration**: Simple core API enables effortless chaining with game logic
+- **Adoption Strategy**: Every extra parameter or complex return type creates friction - minimize ruthlessly
+
+**Bolt-On Architecture Vision:**
+```
+dice_trio (core)           → Unix-simple: parse & roll, dead simple API
+dice_trio_detailed         → Rich breakdowns: dice arrays, modifiers, totals  
+dice_trio_stats           → Statistical analysis, probabilities, distributions
+dice_trio_dnd             → AD&D mechanics: advantage/disadvantage, crits
+dice_trio_cli             → Pretty terminal output, formatting, colors
+```
+
 **Next Session Priorities:**
-- [ ] Review overall architecture for additional cleanup opportunities
-- [ ] Consider integration test coverage for edge cases
-- [ ] Evaluate roll function for potential improvements
+- [ ] **PRIORITY 1**: Comprehensive integration and end-to-end test suite development
+- [ ] **PRIORITY 2**: Document bolt-on architecture patterns and interfaces
+- [ ] Review overall architecture for additional cleanup opportunities  
 - [ ] Performance considerations and optimization opportunities
 
-**Session Energy:** Productive refactoring marathon with excellent collaboration flow. Multiple iterations refined into masterpiece-level parsing architecture. Ready for home session continuation.
+**Session Energy:** Excellent strategic planning session. Clear roadmap established for testing enhancement and modular ecosystem development with maximum API approachability. Ready for core hardening phase.
 
 ---
 *Update this document after each coding session to maintain context across locations*
