@@ -48,28 +48,27 @@ pub fn parse_missing_d_returns_missing_separator_test() {
 
 pub fn roll_single_d2_with_fixed_randomness_test() {
   let fixed_rng = fn(_max) { 2 }
-  
   dice_trio.roll("d2", fixed_rng)
   |> should.equal(Ok(2))
 }
 
 pub fn roll_invalid_input_returns_error_test() {
   let dummy_rng = fn(_max) { 1 }
-  
+
   dice_trio.roll("garbage", dummy_rng)
   |> should.equal(Error(dice_trio.MissingSeparator))
 }
 
 pub fn roll_invalid_sides_returns_error_test() {
   let dummy_rng = fn(_max) { 1 }
-  
+
   dice_trio.roll("d-garbage", dummy_rng)
   |> should.equal(Error(dice_trio.InvalidSides("-garbage")))
 }
 
 pub fn roll_multiple_dice_with_fixed_randomness_test() {
   let fixed_rng = fn(_max) { 3 }
-  
+
   dice_trio.roll("2d6", fixed_rng)
   |> should.equal(Ok(6))
 }
@@ -81,16 +80,44 @@ pub fn parse_d6_plus_2_returns_basic_roll_with_modifier_test() {
   assert actual == expected
 }
 
-pub fn contains_plus_or_minus_with_no_modifier_test() {
-  let input = "d6"
-  let expected = #(0, "d6")
-  let actual = dice_trio.contains_plus_or_minus(input)
+pub fn parse_count_happy_path_test() {
+  let input = "2"
+  let expected = Ok(2)
+  let actual = dice_trio.parse_count(input)
   assert actual == expected
 }
 
-pub fn contains_plus_or_minus_with_negative_modifier_test() {
-  let input = "d6-1"
-  let expected = #(-1, "d6")
-  let actual = dice_trio.contains_plus_or_minus(input)
+pub fn parse_count_sad_path_test() {
+  let input = "abc"
+  let expected = Error(dice_trio.InvalidCount("abc"))
+  let actual = dice_trio.parse_count(input)
+  assert actual == expected
+}
+
+pub fn parse_sides_and_modifier_no_modifier_test() {
+  let input = "6"
+  let expected = Ok(#(6, 0))
+  let actual = dice_trio.parse_sides_and_modifier(input)
+  assert actual == expected
+}
+
+pub fn parse_sides_and_modifier_with_positive_test() {
+  let input = "6+2"
+  let expected = Ok(#(6, 2))
+  let actual = dice_trio.parse_sides_and_modifier(input)
+  assert actual == expected
+}
+
+pub fn parse_sides_and_modifier_with_negative_test() {
+  let input = "6-1"
+  let expected = Ok(#(6, -1))
+  let actual = dice_trio.parse_sides_and_modifier(input)
+  assert actual == expected
+}
+
+pub fn parse_sides_and_modifier_sad_path_test() {
+  let input = "6+-1"
+  let expected = Error(dice_trio.MalformedInput)
+  let actual = dice_trio.parse_sides_and_modifier(input)
   assert actual == expected
 }

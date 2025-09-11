@@ -11,56 +11,70 @@ pub type DiceError {
   MissingSeparator
   InvalidCount(String)
   InvalidSides(String)
+  InvalidModifier(String)
   MalformedInput
 }
 
 pub fn parse(input: String) -> Result(BasicRoll, DiceError) {
-  let modifier = contains_plus_or_minus(input)
-
-  let count_and_sides = string.split(modifier.1, "d")
-
-  case count_and_sides {
-    ["", sides] -> {
-      use sides_parsed <- result.try(
-        int.parse(sides) |> result.map_error(fn(_) { InvalidSides(sides) }),
-      )
-      Ok(BasicRoll(1, sides_parsed, modifier.0))
+  let split = string.split(input, "d")
+  case split {
+    [count, right_of_d] -> {
+      use c <- result.try(parse_count(count))
+      use snm <- result.try(parse_sides_and_modifier(right_of_d))
+      Ok(BasicRoll(c, snm.0, snm.1))
     }
-    [count, sides] -> {
-      use count_parsed <- result.try(
-        int.parse(count) |> result.map_error(fn(_) { InvalidCount(count) }),
-      )
-      use sides_parsed <- result.try(
-        int.parse(sides) |> result.map_error(fn(_) { InvalidSides(sides) }),
-      )
-      Ok(BasicRoll(count_parsed, sides_parsed, 0))
-    }
-    _ -> {
-      // Check if input contains 'd' separator
-      case string.contains(input, "d") {
-        False -> Error(MissingSeparator)
-        True -> Error(MalformedInput)
+    _ -> Error(MissingSeparator)
+  }
+}
+
+pub fn parse_count(c: String) -> Result(Int, DiceError) {
+  case c == "" {
+    True -> Ok(1)
+    False -> safe_parse_int(c, InvalidCount)
+  }
+}
+
+fn safe_parse_int(
+  value: String,
+  error_fn: fn(String) -> DiceError,
+) -> Result(Int, DiceError) {
+  int.parse(value) |> result.map_error(fn(_) { error_fn(value) })
+}
+
+fn parse_sides_mod_pair(sides: String, modifier: String, negate: Bool, original: String) -> Result(#(Int, Int), DiceError) {
+  case sides == "" {
+    True -> Error(InvalidSides(original))
+    False -> {
+      use s <- result.try(safe_parse_int(sides, InvalidSides))
+      use m <- result.try(safe_parse_int(modifier, InvalidModifier))
+      let final_mod = case negate {
+        True -> m * -1
+        False -> m
       }
+      Ok(#(s, final_mod))
     }
   }
 }
 
-pub fn contains_plus_or_minus(input: String) -> #(Int, String) {
-  case string.contains(input, "+") {
-    True -> {
-      string.split(input, "+")
-      |> fn(list) {
-        case list {
-          [unmodified, modifier] -> {
-            let assert Ok(mod) = int.parse(modifier)
-            #(mod, unmodified)
-          }
-          [unmodified] -> #(0, unmodified)
-          _ -> #(0, "")
-        }
+pub fn parse_sides_and_modifier(snm: String) -> Result(#(Int, Int), DiceError) {
+  case string.contains(snm, "+"), string.contains(snm, "-") {
+    True, False -> {
+      case string.split(snm, "+") {
+        [sides, modifier] -> parse_sides_mod_pair(sides, modifier, False, snm)
+        _ -> Error(MalformedInput)
       }
     }
-    False -> #(0, input)
+    False, True -> {
+      case string.split(snm, "-") {
+        [sides, modifier] -> parse_sides_mod_pair(sides, modifier, True, snm)
+        _ -> Error(MalformedInput)
+      }
+    }
+    False, False -> {
+      use s <- result.try(safe_parse_int(snm, InvalidSides))
+      Ok(#(s, 0))
+    }
+    True, True -> Error(MalformedInput)
   }
 }
 
@@ -72,5 +86,5 @@ pub fn roll(
   list.fold(list.range(1, roll_result.roll_count), 0, fn(acc, _) {
     acc + rng_fn(roll_result.side_count)
   })
-  |> fn(sum) { Ok(sum) }
+  |> Ok
 }
