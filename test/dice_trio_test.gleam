@@ -121,3 +121,74 @@ pub fn parse_sides_and_modifier_sad_path_test() {
   let actual = dice_trio.parse_sides_and_modifier(input)
   assert actual == expected
 }
+
+// Edge case tests - input validation
+
+pub fn parse_empty_string_test() {
+  let input = ""
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.MissingSeparator)
+}
+
+pub fn parse_whitespace_only_test() {
+  let input = "   "
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.MissingSeparator)
+}
+
+pub fn parse_zero_dice_count_test() {
+  let input = "0d6"
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.InvalidCount("0"))
+}
+
+pub fn parse_zero_sides_test() {
+  let input = "1d0"
+  let actual = dice_trio.parse(input)
+  assert actual
+    == Ok(dice_trio.BasicRoll(roll_count: 1, side_count: 0, modifier: 0))
+}
+
+pub fn parse_negative_dice_count_test() {
+  let input = "-1d6"
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.InvalidCount("-1"))
+}
+
+pub fn parse_negative_sides_test() {
+  let input = "1d-6"
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.InvalidSides("-6"))
+}
+
+pub fn parse_malformed_modifier_no_number_positive_test() {
+  let input = "d6+"
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.InvalidModifier(""))
+}
+
+pub fn parse_malformed_modifier_no_number_negative_test() {
+  let input = "d6-"
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.InvalidModifier(""))
+}
+
+pub fn parse_malformed_modifier_double_plus_test() {
+  let input = "d6++1"
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.MalformedInput)
+}
+
+pub fn parse_malformed_modifier_double_minus_test() {
+  let input = "d6--1"
+  let actual = dice_trio.parse(input)
+  assert actual == Error(dice_trio.MalformedInput)
+}
+
+pub fn parse_very_large_numbers_test() {
+  let input = "999d999+999"
+  let expected =
+    Ok(dice_trio.BasicRoll(roll_count: 999, side_count: 999, modifier: 999))
+  let actual = dice_trio.parse(input)
+  assert actual == expected
+}

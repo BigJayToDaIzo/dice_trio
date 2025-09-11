@@ -1,3 +1,4 @@
+import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/result
@@ -13,24 +14,30 @@ pub type DiceError {
   InvalidSides(String)
   InvalidModifier(String)
   MalformedInput
+  RandomizerOutOfRange(Int)
 }
 
 pub fn parse(input: String) -> Result(BasicRoll, DiceError) {
-  let split = string.split(input, "d")
-  case split {
-    [count, right_of_d] -> {
+  case string.split_once(input, "d") {
+    Ok(#(count, right_of_d)) -> {
       use c <- result.try(parse_count(count))
       use snm <- result.try(parse_sides_and_modifier(right_of_d))
       Ok(BasicRoll(c, snm.0, snm.1))
     }
-    _ -> Error(MissingSeparator)
+    Error(Nil) -> Error(MissingSeparator)
   }
 }
 
 pub fn parse_count(c: String) -> Result(Int, DiceError) {
   case c == "" {
     True -> Ok(1)
-    False -> safe_parse_int(c, InvalidCount)
+    False -> {
+      use parsed_count <- result.try(safe_parse_int(c, InvalidCount))
+      case parsed_count < 1 {
+        True -> Error(InvalidCount(c))
+        False -> Ok(parsed_count)
+      }
+    }
   }
 }
 
@@ -41,7 +48,12 @@ fn safe_parse_int(
   int.parse(value) |> result.map_error(fn(_) { error_fn(value) })
 }
 
-fn parse_sides_mod_pair(sides: String, modifier: String, negate: Bool, original: String) -> Result(#(Int, Int), DiceError) {
+fn parse_sides_mod_pair(
+  sides: String,
+  modifier: String,
+  negate: Bool,
+  original: String,
+) -> Result(#(Int, Int), DiceError) {
   case sides == "" {
     True -> Error(InvalidSides(original))
     False -> {
@@ -83,8 +95,13 @@ pub fn roll(
   rng_fn: fn(Int) -> Int,
 ) -> Result(Int, DiceError) {
   use roll_result <- result.try(parse(dice_expression))
+  use <- bool.guard(
+    rng_fn(roll_result.side_count) < 1
+      || rng_fn(roll_result.side_count) > roll_result.side_count,
+    Error(RandomizerOutOfRange(rng_fn(roll_result.side_count))),
+  )
   list.fold(list.range(1, roll_result.roll_count), 0, fn(acc, _) {
     acc + rng_fn(roll_result.side_count)
   })
-  |> Ok
+  |> fn(pre_mod) { Ok(pre_mod + roll_result.modifier) }
 }
