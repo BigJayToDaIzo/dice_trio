@@ -80,3 +80,17 @@ pub fn parse_d6_plus_2_returns_basic_roll_with_modifier_test() {
   let actual = dice_trio.parse(input)
   assert actual == expected
 }
+
+pub fn contains_plus_or_minus_with_no_modifier_test() {
+  let input = "d6"
+  let expected = #(0, "d6")
+  let actual = dice_trio.contains_plus_or_minus(input)
+  assert actual == expected
+}
+
+pub fn contains_plus_or_minus_with_negative_modifier_test() {
+  let input = "d6-1"
+  let expected = #(-1, "d6")
+  let actual = dice_trio.contains_plus_or_minus(input)
+  assert actual == expected
+}
