@@ -6,7 +6,6 @@ pub fn main() -> Nil {
   gleeunit.main()
 }
 
-// gleeunit test functions end in `_test`
 pub fn parse_d2_returns_basic_roll_test() {
   let input = "d2"
   let expected = Ok(BasicRoll(roll_count: 1, side_count: 2, modifier: 0))
@@ -47,29 +46,22 @@ pub fn parse_missing_d_returns_missing_separator_test() {
 }
 
 pub fn roll_single_d2_with_fixed_randomness_test() {
-  let fixed_rng = fn(_max) { 2 }
-  dice_trio.roll("d2", fixed_rng)
+  dice_trio.roll("d2", fn(_) { 2 })
   |> should.equal(Ok(2))
 }
 
 pub fn roll_invalid_input_returns_error_test() {
-  let dummy_rng = fn(_max) { 1 }
-
-  dice_trio.roll("garbage", dummy_rng)
+  dice_trio.roll("garbage", fn(_) { 1 })
   |> should.equal(Error(dice_trio.MissingSeparator))
 }
 
 pub fn roll_invalid_sides_returns_error_test() {
-  let dummy_rng = fn(_max) { 1 }
-
-  dice_trio.roll("d-garbage", dummy_rng)
+  dice_trio.roll("d-garbage", fn(_) { 1 })
   |> should.equal(Error(dice_trio.InvalidSides("-garbage")))
 }
 
 pub fn roll_multiple_dice_with_fixed_randomness_test() {
-  let fixed_rng = fn(_max) { 3 }
-
-  dice_trio.roll("2d6", fixed_rng)
+  dice_trio.roll("2d6", fn(_) { 3 })
   |> should.equal(Ok(6))
 }
 
@@ -135,6 +127,13 @@ pub fn parse_whitespace_only_test() {
   let actual = dice_trio.parse(input)
   assert actual == Error(dice_trio.MissingSeparator)
 }
+
+pub fn parse_whitespace_around_d6_test() {
+  let input = " d6 "
+  let actual = dice_trio.parse(input)
+  assert actual == Ok(BasicRoll(roll_count: 1, side_count: 6, modifier: 0))
+}
+
 
 pub fn parse_zero_dice_count_test() {
   let input = "0d6"
