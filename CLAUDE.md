@@ -22,6 +22,7 @@ gleam shell
 - **TDD Approach**: Red-Green-Refactor cycle strictly enforced
 - **Core Focus**: Standard dice notation (XdY+Z) before exotic mechanics
 - **Testing**: Use gleeunit for comprehensive test coverage
+- **Benchmarks**: When running `gleam dev`, update timing comments in dev/dice_trio_dev.gleam with the 3 most recent measurements
 
 ## Code Style & Patterns
 - Clarity over brevity - prioritize readable, self-documenting code
