@@ -374,5 +374,14 @@ DetailedRoll Performance:
 
 **Session Energy:** Outstanding technical execution with strong collaborative problem-solving. Successfully implemented complex feature while maintaining performance excellence and comprehensive test coverage. Ready for advanced display functionality and ecosystem development.
 
+## RNG Library Recommendation
+
+**Official Recommendation**: The `prng` library by Gleam core team member Jak
+- **Integration Validated**: Extensively tested in our E2E test suite with 1,050+ validation rolls
+- **Performance Proven**: Excellent performance with cross-platform compatibility
+- **Developer Template**: E2E tests serve as reference implementation for game developers
+- **Quality Assurance**: Provides reliable RNG contract compliance validation
+- **Documentation**: Featured prominently in README as recommended production choice
+
 ---
 *Update this document after each coding session to maintain context across locations*

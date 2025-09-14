@@ -37,8 +37,38 @@ import dice_trio
 let rng = fn(max) { // your random 1-to-max implementation }
 
 dice_trio.roll("d6", rng)        // Ok(4)
-dice_trio.roll("2d6+3", rng)     // Ok(11) 
+dice_trio.roll("2d6+3", rng)     // Ok(11)
 dice_trio.roll("d20-1", rng)     // Ok(14)
+
+// Detailed rolling with individual die results
+dice_trio.detailed_roll("2d6+3", rng)
+// Ok(DetailedRoll(
+//   basic_roll: BasicRoll(2, 6, 3),
+//   individual_rolls: [4, 5],
+//   total: 12
+// ))
+```
+
+### Recommended RNG Library
+
+For production use, we recommend the [`prng`](https://hex.pm/packages/prng) library by Gleam core team member Jak ([Giacomo Cavalieri](https://github.com/giacomocavalieri)). It's extensively tested in our E2E test suite and provides excellent performance with cross-platform compatibility:
+
+```sh
+gleam add prng
+```
+
+```gleam
+import dice_trio
+import prng/random
+
+pub fn game_roll() {
+  let rng_fn = fn(max: Int) {
+    let generator = random.int(1, max)
+    random.random_sample(generator)
+  }
+
+  dice_trio.roll("3d6+2", rng_fn)  // Ok(14)
+}
 ```
 
 ### Parsing Only
@@ -78,13 +108,16 @@ pub type BasicRoll {
   BasicRoll(roll_count: Int, side_count: Int, modifier: Int)
 }
 
+pub type DetailedRoll {
+  DetailedRoll(basic_roll: BasicRoll, individual_rolls: List(Int), total: Int)
+}
+
 pub type DiceError {
   MissingSeparator
   InvalidCount(String)
-  InvalidSides(String) 
+  InvalidSides(String)
   InvalidModifier(String)
   MalformedInput
-  RandomizerOutOfRange(Int)
 }
 ```
 
@@ -104,6 +137,14 @@ Parses dice expression into structured data without rolling.
 
 - **`input`**: Dice expression string
 - **Returns**: Parsed dice components or validation error
+
+#### `detailed_roll(dice_expression: String, rng_fn: fn(Int) -> Int) -> Result(DetailedRoll, DiceError)`
+
+Parses and rolls a dice expression, returning detailed results with individual die values.
+
+- **`dice_expression`**: Standard dice notation (`"d6"`, `"2d6+3"`, `"d20-1"`)
+- **`rng_fn`**: Function that takes max value and returns 1-to-max random number
+- **Returns**: `Ok(DetailedRoll)` with individual dice results or detailed error
 
 ## Supported Notation
 
@@ -134,9 +175,10 @@ Validated under extreme conditions:
 
 ## Testing
 
-`dice_trio` has **39 comprehensive tests**:
-- **29 unit tests**: Parsing, validation, edge cases
-- **10 integration tests**: End-to-end validation, performance, statistical verification
+`dice_trio` has **60 comprehensive tests**:
+- **34 unit tests**: Parsing, validation, edge cases, detailed roll functionality
+- **12 integration tests**: Cross-component validation, performance, statistical verification
+- **14 end-to-end tests**: Real-world scenarios, RNG contract validation with 1,050+ validation rolls
 
 ```sh
 gleam test  # All tests should pass
@@ -159,13 +201,18 @@ pub fn attack_roll(modifier: Int) {
 ### RNG Injection Pattern
 Bring your own randomness for testing, determinism, or custom distributions:
 ```gleam
+import prng/random
+
 // Testing with fixed results
 let test_rng = fn(_) { 3 }
 dice_trio.roll("2d6", test_rng)  // Always returns Ok(6)
 
-// Production with real randomness  
-let random_rng = fn(max) { your_random_implementation(max) }
-dice_trio.roll("2d6", random_rng)
+// Production with real randomness using prng
+let prng_rng = fn(max: Int) {
+  let generator = random.int(1, max)
+  random.random_sample(generator)
+}
+dice_trio.roll("2d6", prng_rng)  // Real randomness
 ```
 
 ## Ecosystem Vision

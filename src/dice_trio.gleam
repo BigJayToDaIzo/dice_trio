@@ -230,16 +230,18 @@ pub fn roll(
   rng_fn: fn(Int) -> Int,
 ) -> Result(Int, DiceError) {
   use roll_result <- result.try(parse(dice_expression))
-  list.fold(list.range(1, roll_result.roll_count), 0, fn(acc, _) {
-    acc + rng_fn(roll_result.side_count)
-  })
-  |> fn(pre_mod) { Ok(pre_mod + roll_result.modifier) }
+  list.fold(
+    list.range(1, roll_result.roll_count),
+    roll_result.modifier,
+    fn(acc, _) { acc + rng_fn(roll_result.side_count) },
+  )
+  |> Ok
 }
 
 /// Parses and rolls a dice expression, returning detailed results with individual die values.
 ///
 /// This function provides comprehensive roll information including each individual die result,
-/// the modifier, and access to the original parsed expression structure.
+/// the parsed dice components (count, sides, modifier), and the calculated total.
 ///
 /// ## Parameters
 ///
@@ -281,6 +283,8 @@ pub fn detailed_roll(
   Ok(DetailedRoll(
     basic_roll:,
     individual_rolls:,
-    total: list.fold(individual_rolls, 0, fn(acc, li) { acc + li }),
+    total: list.fold(individual_rolls, basic_roll.modifier, fn(acc, li) {
+      acc + li
+    }),
   ))
 }

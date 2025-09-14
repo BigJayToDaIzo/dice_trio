@@ -2,6 +2,7 @@ import dice_trio
 import gleam/list
 import gleeunit
 import gleeunit/should
+import prng/random
 
 pub fn main() -> Nil {
   gleeunit.main()
@@ -84,4 +85,92 @@ pub fn detailed_roll_extreme_load_e2e_test() {
   dice_trio.detailed_roll("1000d6", deterministic_rng(1))
   |> should.be_ok()
   // Just verify it doesn't crash with extreme loads
+}
+
+// === Real-World RNG Contract Validation Tests ===
+// These tests use the `prng` library (https://hex.pm/packages/prng) by Gleam core team member Jak (Giacomo Cavalieri)
+// as a reference implementation showing how to integrate high-quality RNG with dice_trio.
+// Game developers can use this as a template for validating their own RNG functions.
+pub fn real_rng_d6_contract_validation_test() {
+  let rng_fn = fn(max: Int) {
+    let dice_roll = random.int(1, max)
+    random.random_sample(dice_roll)
+  }
+  list.range(1, 100)
+  |> list.all(fn(_) {
+    case dice_trio.roll("d6", rng_fn) {
+      // Run 100 d6 rolls and validate ALL are in range 1-6
+      Ok(result) -> result >= 1 && result <= 6
+      Error(_) -> False
+    }
+  })
+  |> should.be_true()
+}
+
+pub fn real_rng_d20_contract_validation_test() {
+  let rng_fn = fn(max: Int) {
+    let dice_roll = random.int(1, max)
+    random.random_sample(dice_roll)
+  }
+  list.range(1, 500)
+  |> list.all(fn(_) {
+    case dice_trio.roll("d20", rng_fn) {
+      // Run 500 d20 rolls and validate ALL are in range 1-20
+      Ok(result) -> result >= 1 && result <= 20
+      Error(_) -> False
+    }
+  })
+  |> should.be_true()
+}
+
+pub fn real_rng_complex_expression_contract_validation_test() {
+  let rng_fn = fn(max: Int) {
+    let dice_roll = random.int(1, max)
+    random.random_sample(dice_roll)
+  }
+  list.range(1, 100)
+  |> list.all(fn(_) {
+    case dice_trio.roll("2d6+3", rng_fn) {
+      // Test "2d6+3" - should be in range 5-15 (2+3 to 12+3)
+      Ok(result) -> result >= 5 && result <= 15
+      Error(_) -> False
+    }
+  })
+  |> should.be_true()
+}
+
+pub fn real_rng_detailed_roll_contract_validation_test() {
+  let rng_fn = fn(max: Int) {
+    let dice_roll = random.int(1, max)
+    random.random_sample(dice_roll)
+  }
+  list.range(1, 50)
+  |> list.all(fn(_) {
+    case dice_trio.detailed_roll("3d8", rng_fn) {
+      Ok(detailed) -> {
+        // All individual rolls should be 1-8
+        detailed.individual_rolls
+        |> list.all(fn(roll) { roll >= 1 && roll <= 8 })
+      }
+      Error(_) -> False
+    }
+  })
+  |> should.be_true()
+}
+
+pub fn real_rng_extreme_negative_modifier_contract_validation_test() {
+  let rng_fn = fn(max: Int) {
+    let dice_roll = random.int(1, max)
+    random.random_sample(dice_roll)
+  }
+  // Test "d6-10" - even max roll (6) gives -4, min roll (1) gives -9
+  list.range(1, 200)
+  |> list.all(fn(_) {
+    case dice_trio.roll("d6-10", rng_fn) {
+      // Should be in range -9 to -4
+      Ok(result) -> result >= -9 && result <= -4
+      Error(_) -> False
+    }
+  })
+  |> should.be_true()
 }
