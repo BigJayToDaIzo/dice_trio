@@ -120,4 +120,3 @@ pub fn roll_with_modifier_range_validation_test() {
     dice_trio.roll(expr, fn(max) { max }) |> should.equal(Ok(max_expected))
   })
 }
-
