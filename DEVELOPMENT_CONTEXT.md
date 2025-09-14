@@ -383,5 +383,26 @@ DetailedRoll Performance:
 - **Quality Assurance**: Provides reliable RNG contract compliance validation
 - **Documentation**: Featured prominently in README as recommended production choice
 
+## Hex.pm Publication Process
+
+**Version Tagging for hex.pm:**
+- **CRITICAL**: hex.pm requires git tags matching the version in `gleam.toml`
+- **Process**: Before publishing, create version tag: `git tag v1.0.0` (matching gleam.toml version)
+- **Workflow**: Update version → commit → tag → push tags → `gleam publish`
+- **Tag Format**: Use `v{major}.{minor}.{patch}` format (e.g., v1.0.0, v1.0.1, v1.1.0)
+
+**Publication Commands:**
+```bash
+git tag v1.0.0                    # Create version tag
+git push origin --tags            # Push tags to GitHub
+export HEX_API_KEY=your-key       # Set API key
+gleam publish                     # Publish to hex.pm
+```
+
+**Post-Publication Verification:**
+- Verify package appears at https://hex.pm/packages/dice_trio
+- Test installation: `gleam add dice_trio` in a new project
+- Check hexdocs generation at https://hexdocs.pm/dice_trio
+
 ---
 *Update this document after each coding session to maintain context across locations*
