@@ -8,7 +8,7 @@
 //// ```gleam
 //// import dice_trio
 ////
-//// // Your RNG function (1-to-max inclusive)
+//// // Your RNG function (MUST return 1-to-max inclusive)
 //// let rng = fn(max) { your_random_implementation(max) }
 ////
 //// // Roll some dice
@@ -16,6 +16,12 @@
 //// dice_trio.roll("2d6+3", rng)     // Ok(11)
 //// dice_trio.roll("d20-1", rng)     // Ok(18)
 //// ```
+////
+//// ## RNG Contract Requirements
+////
+//// **CRITICAL**: Your RNG function MUST return values between 1 and max (inclusive).
+//// The dice library does not validate RNG output for performance reasons.
+//// Invalid RNG output will produce incorrect dice results.
 ////
 //// ## Supported Notation
 ////
@@ -33,7 +39,6 @@
 //// - **Comprehensive Validation**: Clear errors for invalid input
 //// - **Performance Tested**: Handles extreme loads (1000d6, 100d100+50)
 
-import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/result
@@ -51,6 +56,10 @@ pub type BasicRoll {
   BasicRoll(roll_count: Int, side_count: Int, modifier: Int)
 }
 
+pub type DetailedRoll {
+  DetailedRoll(basic_roll: BasicRoll, individual_rolls: List(Int), total: Int)
+}
+
 /// All possible errors that can occur when parsing or rolling dice expressions.
 pub type DiceError {
   /// No "d" separator found in input (e.g., "garbage")
@@ -63,8 +72,6 @@ pub type DiceError {
   InvalidModifier(String)
   /// Malformed input that doesn't follow expected patterns
   MalformedInput
-  /// RNG function returned value outside expected 1-to-max range
-  RandomizerOutOfRange(Int)
 }
 
 /// Parses a dice expression string into structured components.
@@ -200,10 +207,11 @@ pub fn parse_sides_and_modifier(snm: String) -> Result(#(Int, Int), DiceError) {
 ///
 /// ## RNG Function Contract
 ///
-/// Your RNG function must:
+/// **CRITICAL**: Your RNG function must:
 /// - Take an `Int` parameter (the die size)
 /// - Return a value between 1 and that parameter (inclusive)
 /// - For a d6, return 1, 2, 3, 4, 5, or 6
+/// - Validate its own output ranges (dice library does not validate for performance)
 ///
 /// ## Examples
 ///
@@ -222,13 +230,57 @@ pub fn roll(
   rng_fn: fn(Int) -> Int,
 ) -> Result(Int, DiceError) {
   use roll_result <- result.try(parse(dice_expression))
-  use <- bool.guard(
-    rng_fn(roll_result.side_count) < 1
-      || rng_fn(roll_result.side_count) > roll_result.side_count,
-    Error(RandomizerOutOfRange(rng_fn(roll_result.side_count))),
-  )
   list.fold(list.range(1, roll_result.roll_count), 0, fn(acc, _) {
     acc + rng_fn(roll_result.side_count)
   })
   |> fn(pre_mod) { Ok(pre_mod + roll_result.modifier) }
+}
+
+/// Parses and rolls a dice expression, returning detailed results with individual die values.
+///
+/// This function provides comprehensive roll information including each individual die result,
+/// the modifier, and access to the original parsed expression structure.
+///
+/// ## Parameters
+///
+/// - `dice_expression`: Standard dice notation string (`"d6"`, `"2d6+3"`, etc.)
+/// - `rng_fn`: Function that takes a max value and returns a random 1-to-max number
+///
+/// ## RNG Function Contract
+///
+/// **CRITICAL**: Your RNG function must:
+/// - Take an `Int` parameter (the die size)
+/// - Return a value between 1 and that parameter (inclusive)
+/// - For a d6, return 1, 2, 3, 4, 5, or 6
+/// - Validate its own output ranges (dice library does not validate for performance)
+///
+/// ## Examples
+///
+/// ```gleam
+/// // Simple detailed roll with fixed RNG for testing
+/// let test_rng = fn(_) { 3 }
+/// detailed_roll("2d6+5", test_rng)
+/// // Ok(DetailedRoll(
+/// //   basic_roll: BasicRoll(roll_count: 2, side_count: 6, modifier: 5),
+/// //   individual_rolls: [3, 3]
+/// // ))
+///
+/// // Error handling
+/// detailed_roll("invalid", test_rng)   // Error(MissingSeparator)
+/// detailed_roll("0d6", test_rng)       // Error(InvalidCount("0"))
+/// ```
+pub fn detailed_roll(
+  dice_expression: String,
+  rng_fn: fn(Int) -> Int,
+) -> Result(DetailedRoll, DiceError) {
+  use basic_roll <- result.try(parse(dice_expression))
+  let individual_rolls =
+    list.map(list.range(1, basic_roll.roll_count), fn(_) {
+      rng_fn(basic_roll.side_count)
+    })
+  Ok(DetailedRoll(
+    basic_roll:,
+    individual_rolls:,
+    total: list.fold(individual_rolls, 0, fn(acc, li) { acc + li }),
+  ))
 }

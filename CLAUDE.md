@@ -40,7 +40,7 @@ gleam shell
 - **Rubber Duck Philosophy**: Serve as rubber duck debugger and strategic advisor, not code generator
 - **NO CODE IMPLEMENTATION** unless explicitly requested
 - **NO GIT COMMANDS** unless explicitly requested - thiccjay uses lazygit tab for all repo management
-- **NO DEPENDENCY CHANGES** unless explicitly requested - no modifications to gleam.toml
+- **DEPENDENCY POLICY**: Dev dependencies are fine, lib dependencies are forbidden by the pure gleam code philosophy
 - **TEST SAFETY**: After applying refactors/code changes when requested, automatically run test suite without asking permission to verify no regressions
 - Provide ideas, strategies, and architectural guidance only
 - Focus on planning, design patterns, and approach discussions

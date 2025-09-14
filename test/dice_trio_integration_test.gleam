@@ -27,13 +27,50 @@ pub fn roll_error_propagation_full_pipeline_test() {
   |> should.equal(Error(dice_trio.InvalidSides("-invalid")))
 }
 
-pub fn roll_d1_with_out_of_range_rng_returns_error_test() {
-  dice_trio.roll("d1", fn(_) { 999 })
-  |> should.equal(Error(dice_trio.RandomizerOutOfRange(999)))
-}
-
 pub fn roll_edge_case_large_dice_test() {
   dice_trio.roll("d100", fn(_) { 50 }) |> should.equal(Ok(50))
+}
+
+// === DetailedRoll Integration Tests ===
+pub fn detailed_roll_multiple_dice_statistical_validation_test() {
+  let result = dice_trio.detailed_roll("5d6", fn(_) { 3 })
+  case result {
+    Ok(detailed) -> {
+      // Verify array length matches roll_count
+      list.length(detailed.individual_rolls) |> should.equal(5)
+      // Verify all individual rolls are the expected value
+      detailed.individual_rolls |> should.equal([3, 3, 3, 3, 3])
+      // Verify total calculation
+      detailed.total |> should.equal(15)
+    }
+    Error(_) -> panic as "Expected successful roll"
+  }
+}
+
+pub fn detailed_roll_total_calculation_validation_test() {
+  let result = dice_trio.detailed_roll("3d6+7", fn(_) { 4 })
+  case result {
+    Ok(detailed) -> {
+      let manual_total =
+        list.fold(detailed.individual_rolls, 0, fn(acc, val) { acc + val })
+        + detailed.basic_roll.modifier
+      detailed.total |> should.equal(manual_total)
+      detailed.total |> should.equal(19)
+      // (4+4+4) + 7
+    }
+    Error(_) -> panic as "Expected successful roll"
+  }
+}
+
+pub fn detailed_roll_negative_total_integration_test() {
+  dice_trio.detailed_roll("d6-10", fn(_) { 3 })
+  |> should.equal(
+    Ok(dice_trio.DetailedRoll(
+      dice_trio.BasicRoll(1, 6, -10),
+      individual_rolls: [3],
+      total: -7,
+    )),
+  )
 }
 
 pub fn roll_edge_case_many_dice_test() {
@@ -63,8 +100,8 @@ pub fn roll_multiple_d6_with_deterministic_rng_test() {
     |> list.map(fn(_) {
       case dice_trio.roll("d6", deterministic_rng) {
         Ok(value) -> value
-        Error(_) -> 0
         // Should never happen
+        Error(_) -> 0
       }
     })
   results |> list.all(fn(result) { result == 3 }) |> should.equal(True)
@@ -84,31 +121,3 @@ pub fn roll_with_modifier_range_validation_test() {
   })
 }
 
-// Performance and boundary tests
-pub fn roll_large_dice_expression_test() {
-  let fixed_rng = fn(_) { 50 }
-  dice_trio.roll("100d100+50", fixed_rng) |> should.equal(Ok(5050))
-}
-
-pub fn roll_extreme_boundary_conditions_test() {
-  dice_trio.roll("d1", fn(max) { max }) |> should.equal(Ok(1))
-  dice_trio.roll("d1000", fn(max) { max }) |> should.equal(Ok(1000))
-  dice_trio.roll("1000d6", fn(max) { max }) |> should.equal(Ok(6000))
-}
-
-pub fn roll_negative_results_test() {
-  dice_trio.roll("d6-10", fn(_) { 1 }) |> should.equal(Ok(-9))
-  dice_trio.roll("2d6-20", fn(_) { 1 }) |> should.equal(Ok(-18))
-}
-
-// Benchmarking tests
-pub fn benchmark_simple_roll_performance_test() {
-  // Light performance verification - single roll
-  dice_trio.roll("d6", fn(_) { 3 }) |> should.equal(Ok(3))
-}
-
-pub fn benchmark_complex_expression_performance_test() {
-  // Light performance verification - single complex roll
-  // 10 × 5 + 15 = 65
-  dice_trio.roll("10d20+15", fn(_) { 5 }) |> should.equal(Ok(65))
-}

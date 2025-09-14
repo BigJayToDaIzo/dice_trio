@@ -7,7 +7,7 @@ pub fn main() -> Nil {
 }
 
 pub fn parse_d2_returns_basic_roll_test() {
-  dice_trio.parse("d2") 
+  dice_trio.parse("d2")
   |> should.equal(Ok(BasicRoll(roll_count: 1, side_count: 2, modifier: 0)))
 }
 
@@ -16,22 +16,22 @@ pub fn parse_invalid_input_returns_error_test() {
 }
 
 pub fn parse_2d2_returns_basic_roll_test() {
-  dice_trio.parse("2d2") 
+  dice_trio.parse("2d2")
   |> should.equal(Ok(BasicRoll(roll_count: 2, side_count: 2, modifier: 0)))
 }
 
 pub fn parse_3d6_returns_basic_roll_test() {
-  dice_trio.parse("3d6") 
+  dice_trio.parse("3d6")
   |> should.equal(Ok(BasicRoll(roll_count: 3, side_count: 6, modifier: 0)))
 }
 
 pub fn parse_invalid_count_returns_descriptive_error_test() {
-  dice_trio.parse("garbaged6") 
+  dice_trio.parse("garbaged6")
   |> should.equal(Error(dice_trio.InvalidCount("garbage")))
 }
 
 pub fn parse_missing_d_returns_missing_separator_test() {
-  dice_trio.parse("noseparator") 
+  dice_trio.parse("noseparator")
   |> should.equal(Error(dice_trio.MissingSeparator))
 }
 
@@ -54,7 +54,7 @@ pub fn roll_multiple_dice_with_fixed_randomness_test() {
 }
 
 pub fn parse_d6_plus_2_returns_basic_roll_with_modifier_test() {
-  dice_trio.parse("d6+2") 
+  dice_trio.parse("d6+2")
   |> should.equal(Ok(BasicRoll(roll_count: 1, side_count: 6, modifier: 2)))
 }
 
@@ -63,7 +63,8 @@ pub fn parse_valid_dice_count_succeeds_test() {
 }
 
 pub fn parse_invalid_dice_count_returns_error_test() {
-  dice_trio.parse_count("abc") |> should.equal(Error(dice_trio.InvalidCount("abc")))
+  dice_trio.parse_count("abc")
+  |> should.equal(Error(dice_trio.InvalidCount("abc")))
 }
 
 pub fn parse_sides_and_modifier_no_modifier_test() {
@@ -79,7 +80,8 @@ pub fn parse_sides_and_modifier_with_negative_test() {
 }
 
 pub fn parse_malformed_modifier_syntax_returns_error_test() {
-  dice_trio.parse_sides_and_modifier("6+-1") |> should.equal(Error(dice_trio.MalformedInput))
+  dice_trio.parse_sides_and_modifier("6+-1")
+  |> should.equal(Error(dice_trio.MalformedInput))
 }
 
 // Edge case tests - input validation
@@ -132,6 +134,57 @@ pub fn parse_malformed_modifier_double_minus_test() {
 }
 
 pub fn parse_very_large_numbers_test() {
-  dice_trio.parse("999d999+999") 
-  |> should.equal(Ok(dice_trio.BasicRoll(roll_count: 999, side_count: 999, modifier: 999)))
+  dice_trio.parse("999d999+999")
+  |> should.equal(
+    Ok(dice_trio.BasicRoll(roll_count: 999, side_count: 999, modifier: 999)),
+  )
+}
+
+pub fn detailed_roll_shows_individual_dice_test() {
+  dice_trio.detailed_roll("2d6", fn(_) { 4 })
+  |> should.equal(
+    Ok(dice_trio.DetailedRoll(
+      BasicRoll(2, 6, 0),
+      individual_rolls: [4, 4],
+      total: 8,
+    )),
+  )
+}
+
+pub fn detailed_roll_single_d6_test() {
+  dice_trio.detailed_roll("d6", fn(_) { 3 })
+  |> should.equal(
+    Ok(dice_trio.DetailedRoll(
+      BasicRoll(1, 6, 0),
+      individual_rolls: [3],
+      total: 3,
+    )),
+  )
+}
+
+pub fn detailed_roll_with_positive_modifier_test() {
+  dice_trio.detailed_roll("2d6+3", fn(_) { 4 })
+  |> should.equal(
+    Ok(dice_trio.DetailedRoll(
+      BasicRoll(2, 6, 3),
+      individual_rolls: [4, 4],
+      total: 11,
+    )),
+  )
+}
+
+pub fn detailed_roll_with_negative_modifier_test() {
+  dice_trio.detailed_roll("d20-1", fn(_) { 15 })
+  |> should.equal(
+    Ok(dice_trio.DetailedRoll(
+      BasicRoll(1, 20, -1),
+      individual_rolls: [15],
+      total: 14,
+    )),
+  )
+}
+
+pub fn detailed_roll_propagates_parse_errors_test() {
+  dice_trio.detailed_roll("garbage", fn(_) { 1 })
+  |> should.equal(Error(dice_trio.MissingSeparator))
 }

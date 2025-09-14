@@ -1,4 +1,5 @@
 import dice_trio
+import gleam/list
 import gleeunit
 import gleeunit/should
 
@@ -14,7 +15,6 @@ fn deterministic_rng(value: Int) -> fn(Int) -> Int {
 
 pub fn roll_with_deterministic_rng_produces_valid_results_test() {
   dice_trio.roll("d6", deterministic_rng(4)) |> should.equal(Ok(4))
-  // Range validation covered by integration tests
 }
 
 pub fn roll_complex_expression_with_deterministic_rng_test() {
@@ -38,11 +38,50 @@ pub fn roll_large_dice_with_deterministic_rng_performance_test() {
   dice_trio.roll("10d20+5", deterministic_rng(12)) |> should.equal(Ok(125))
 }
 
-pub fn rng_contract_violation_detection_test() {
-  let bad_rng = fn(_) { 0 }
-  dice_trio.roll("d6", bad_rng)
-  |> should.equal(Error(dice_trio.RandomizerOutOfRange(0)))
-  let high_rng = fn(_) { 10 }
-  dice_trio.roll("d6", high_rng)
-  |> should.equal(Error(dice_trio.RandomizerOutOfRange(10)))
+// === DetailedRoll E2E Tests ===
+// Note: These tests cover some scenarios identically to integration tests for comprehensive validation
+pub fn detailed_roll_large_dice_performance_e2e_test() {
+  dice_trio.detailed_roll("100d6+25", deterministic_rng(3))
+  |> should.equal(
+    Ok(dice_trio.DetailedRoll(
+      dice_trio.BasicRoll(100, 6, 25),
+      individual_rolls: list.repeat(3, 100),
+      total: 325,
+    )),
+  )
+}
+
+pub fn detailed_roll_damage_calculation_scenario_test() {
+  // Simulates "fireball does 8d6 fire damage"
+  let result = dice_trio.detailed_roll("8d6", deterministic_rng(4))
+  case result {
+    Ok(detailed) -> {
+      list.length(detailed.individual_rolls) |> should.equal(8)
+      detailed.total |> should.equal(32)
+      detailed.individual_rolls
+      |> list.all(fn(roll) { roll == 4 })
+      |> should.be_true()
+    }
+    Error(_) -> panic as "Expected successful damage roll"
+  }
+}
+
+pub fn detailed_roll_character_stats_scenario_test() {
+  // Very similar to prior test, but
+  // simulates "roll 4d6, drop lowest" preparation
+  let result = dice_trio.detailed_roll("4d6", deterministic_rng(5))
+  case result {
+    Ok(detailed) -> {
+      list.length(detailed.individual_rolls) |> should.equal(4)
+      detailed.total |> should.equal(20)
+      // Game logic would drop lowest from detailed.individual_rolls
+    }
+    Error(_) -> panic as "Expected successful stat roll"
+  }
+}
+
+pub fn detailed_roll_extreme_load_e2e_test() {
+  dice_trio.detailed_roll("1000d6", deterministic_rng(1))
+  |> should.be_ok()
+  // Just verify it doesn't crash with extreme loads
 }
